@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Firestore Example</title>
+  </head>
+  <body>
+    <h1>Додај нова компанија</h1>
+    <form id="addCompanyForm">
+      <input type="text" name="ime" id="ime" placeholder="Име" required />
+      <input
+        type="email"
+        name="email"
+        id="email"
+        placeholder="Email"
+        required
+      />
+      <input
+        type="text"
+        name="address"
+        id="address"
+        placeholder="Адреса"
+        required
+      />
+      <input type="text" name="grad" id="grad" placeholder="Град" required />
+      <input type="submit" value="Додај" />
+    </form>
+    <br />
+    <hr />
+    <h2>Листа на компании</h2>
+    <ol id="lista-kompanii"></ol>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+
+      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+
+      // Add Firebase products that you want to use
+      import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        addDoc,
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+      // TODO: Replace the following with your app's Firebase project configuration
+      const firebaseConfig = {
+        apiKey: "<Your-API-KEY>",
+        authDomain: "<Your-Firebase-Auth-Domain>",
+        projectId: "<Your-Project-ID>",
+        storageBucket: "<Your-Storage-Bucket>",
+        messagingSenderId: "<Your-Messaging-Sender-ID>",
+        appId: "<Your-App-Id>",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const form = document.getElementById("addCompanyForm");
+      form.onsubmit = async function (e) {
+        e.preventDefault();
+        const ime = document.getElementById("ime").value;
+        const email = document.getElementById("email").value;
+        const address = document.getElementById("address").value;
+        const grad = document.getElementById("grad").value;
+        const docRef = await addDoc(collection(db, "companies"), {
+          ime,
+          email,
+          address,
+          grad,
+        });
+
+        location.reload();
+      };
+      const querySnapshot = await getDocs(collection(db, "companies"));
+      const lista = document.getElementById("lista-kompanii");
+      querySnapshot.forEach((doc) => {
+        const { ime, address, grad, email } = doc.data();
+        const li = document.createElement("li");
+        li.append(
+          `Компанија: ${ime} | Емаил: ${email} | Адреса: ${address} | Град: ${grad}`
+        );
+        lista.appendChild(li);
+      });
+    </script>
+  </body>
+</html>
